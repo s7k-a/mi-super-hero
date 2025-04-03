@@ -1,17 +1,46 @@
-<!-- Вставь этот код в index.html -->
+<!-- Улучшенный код для index.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello TMA</title>
+    <title>SuperHero App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .btn {
+            background-color: #0088cc;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1 id="hello">Hello World!</h1>
+    <h1>Welcome, <span id="username"></span>!</h1>
+    <div id="app">
+        <p>Your SuperHero app is ready!</p>
+        <button class="btn" onclick="Telegram.WebApp.sendData('OK')">Send Data</button>
+    </div>
+
     <script>
         Telegram.WebApp.ready();
-        document.getElementById('hello').style.color = '#0088cc';
+        Telegram.WebApp.expand();
+        
+        // Показываем имя пользователя
+        document.getElementById('username').textContent = 
+            Telegram.WebApp.initDataUnsafe.user?.first_name || 'Hero';
+        
+        // Пример обработки кнопки
+        Telegram.WebApp.onEvent('mainButtonClicked', function(){
+            alert('Button clicked!');
+        });
     </script>
 </body>
 </html>
