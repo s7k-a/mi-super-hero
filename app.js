@@ -1,5 +1,3 @@
-Telegram.WebApp.initDataUnsafe.user = { phone_number: "+79211234567" }; // Удалите после проверки!
-
 // 1. Ждём загрузки Telegram WebApp
 Telegram.WebApp.ready();
 
