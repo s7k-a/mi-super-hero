@@ -1,22 +1,40 @@
-import telebot
-from telebot.types import WebAppInfo, ReplyKeyboardMarkup
+import os
+from telegram.ext import Application, CommandHandler
+from telegram import Update, WebAppInfo, ReplyKeyboardMarkup, KeyboardButton
+from telegram.ext import ContextTypes
+from dotenv import load_dotenv
 
-bot = telebot.TeleBot("7795297927:AAECmuYwQ2CJNrv6UZBb154g2e9NjcqltrQ")
+# Загружаем токен
+load_dotenv()
+TOKEN = os.getenv("TOKEN")
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    # Создаем кнопку с ссылкой на ваше приложение
-    markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    btn = telebot.types.KeyboardButton(
-        text="📱 Личный кабинет",
-        web_app=WebAppInfo(url="https://s7k-a.github.io/mi-super-hero/")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Обработчик команды /start"""
+    web_app = WebAppInfo(url="http://localhost:8080")
+    button = KeyboardButton(
+        text="Личный кабинет",
+        web_app=web_app
     )
-    markup.add(btn)
-    
-    bot.send_message(
-        message.chat.id,
-        "Нажмите кнопку ниже для входа:",
-        reply_markup=markup
+    keyboard = ReplyKeyboardMarkup(
+        keyboard=[[button]],
+        resize_keyboard=True
+    )
+    await update.message.reply_text(
+        "Добро пожаловать! Нажмите кнопку ниже, чтобы открыть личный кабинет:",
+        reply_markup=keyboard
     )
 
-bot.polling()
+def main():
+    """Запуск бота"""
+    if not TOKEN:
+        print("Ошибка: Токен бота не найден в файле .env")
+        return
+
+    # Создаем и запускаем бота
+    app = Application.builder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    print("Бот запущен. Нажмите Ctrl+C для остановки.")
+    app.run_polling()
+
+if __name__ == '__main__':
+    main()
