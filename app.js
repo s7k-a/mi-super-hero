@@ -122,3 +122,38 @@ function showError(message) {
 
 // Запуск
 main();
+// Хранение данных (в реальном проекте используйте сервер)
+const users = {
+  "admin": { password: "admin123", name: "Администратор", position: "Руководитель" },
+  "user1": { password: "pass123", name: "Иванов Иван", position: "Продавец" }
+};
+
+function authUser() {
+  const login = document.getElementById('login').value;
+  const password = document.getElementById('password').value;
+
+  if (users[login] && users[login].password === password) {
+    document.getElementById('auth-form').style.display = 'none';
+    document.getElementById('profile').style.display = 'block';
+    showProfile(users[login]);
+  } else {
+    alert("Неверный логин или пароль");
+  }
+}
+
+function showProfile(user) {
+  document.getElementById('profile').innerHTML = `
+    <div style="text-align: center">
+      <h2>${user.name}</h2>
+      <p>${user.position}</p>
+      <button onclick="logout()" style="padding: 5px 10px; margin-top: 20px;">
+        Выйти
+      </button>
+    </div>
+  `;
+}
+
+function logout() {
+  document.getElementById('auth-form').style.display = 'block';
+  document.getElementById('profile').style.display = 'none';
+}
