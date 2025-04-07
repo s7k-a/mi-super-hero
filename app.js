@@ -157,3 +157,10 @@ function logout() {
   document.getElementById('auth-form').style.display = 'block';
   document.getElementById('profile').style.display = 'none';
 }
+// В app.js
+const userPhone = Telegram.WebApp.initDataUnsafe.user?.phone_number;
+
+if (userPhone) {
+  document.getElementById('login').value = userPhone;
+  document.getElementById('login').readOnly = true;
+}
