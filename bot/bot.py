@@ -10,7 +10,8 @@ TOKEN = os.getenv("TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /start"""
-    web_app = WebAppInfo(url="http://localhost:8080")
+    # Используем HTTPS URL для Telegram WebApp
+    web_app = WebAppInfo(url="https://s7k-a.github.io/mi-super-hero/")
     button = KeyboardButton(
         text="Личный кабинет",
         web_app=web_app
