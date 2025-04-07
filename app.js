@@ -1,103 +1,62 @@
-// 1. Ждем загрузки Telegram WebApp
+// 1. Инициализация
 Telegram.WebApp.ready();
 
-// 2. Получаем номер телефона из Telegram (закомментировано для теста)
-// const userPhone = Telegram.WebApp.initDataUnsafe.user?.phone_number;
+// 2. Получаем номер телефона
+const userPhone = Telegram.WebApp.initDataUnsafe.user?.phone_number;
 
-// Для теста в браузере - раскомментируйте следующую строку:
-const userPhone = "+79211234567"; // Тестовый номер из employees.json
-
-// 3. Асинхронная функция проверки сотрудника
-async function checkEmployeeAccess() {
+// 3. Функция загрузки данных
+async function loadEmployees() {
   try {
-    if (!userPhone) {
-      // Если номер не получен (например, в браузере без мока)
-      console.warn("Номер телефона недоступен");
-      
-      // Вариант 1: Показать кнопку запроса номера в Telegram
-      if (Telegram.WebApp.platform !== "tdesktop") {
-        Telegram.WebApp.requestContact(); // Покажет кнопку "Поделиться номером"
-      }
-      
-      // Вариант 2: Запросить номер вручную (для теста)
-      const manualPhone = prompt("Введите номер для теста (формат: +79211234567):");
-      if (manualPhone) {
-        const response = await fetch('data/employees.json');
-        const employees = await response.json();
-        const employee = employees.find(emp => emp.phone === manualPhone);
-        processAuthResult(employee);
-      }
-      return;
-    }
-
-    // Основная проверка номера
+    // Для GitHub Pages используйте относительный путь
     const response = await fetch('data/employees.json');
-    const employees = await response.json();
-    const employee = employees.find(emp => {
-      // Нормализация номеров для сравнения
-      const cleanUserPhone = userPhone.replace(/\D/g, '');
-      const cleanEmpPhone = emp.phone.replace(/\D/g, '');
-      return cleanUserPhone === cleanEmpPhone;
-    });
-    
-    processAuthResult(employee);
-    
+    if (!response.ok) throw new Error('Ошибка загрузки данных');
+    return await response.json();
   } catch (error) {
-    console.error("Ошибка загрузки данных:", error);
-    Telegram.WebApp.showAlert("Ошибка системы. Попробуйте позже.");
+    console.error('Ошибка:', error);
+    // Альтернативный вариант для локального тестирования
+    return [
+      {
+        "phone": "+79253555985",
+        "name": "Калинин Сергей",
+        "position": "Project Manager",
+        "store": "Москва, Офис",
+        "photo": "logo.jpg"
+      }
+    ];
   }
 }
 
-// Обработка результата проверки
-function processAuthResult(employee) {
+// 4. Проверка доступа
+async function checkEmployeeAccess() {
+  const employees = await loadEmployees();
+  const employee = employees.find(emp => 
+    emp.phone.replace(/\D/g, '') === userPhone?.replace(/\D/g, '')
+  );
+
   if (employee) {
-    console.log("Доступ разрешен!", employee);
     renderProfile(employee);
-    
-    // Показываем основное содержимое
-    Telegram.WebApp.MainButton.setText("Мой профиль");
-    Telegram.WebApp.MainButton.show();
   } else {
-    console.warn("Доступ запрещен для номера:", userPhone);
-    Telegram.WebApp.showAlert("Доступ запрещён: вас нет в базе!");
-    Telegram.WebApp.MainButton.setText("Выход");
-    Telegram.WebApp.MainButton.onClick(() => Telegram.WebApp.close());
-    Telegram.WebApp.MainButton.show();
+    try {
+      await Telegram.WebApp.showAlert("Доступ запрещён");
+      Telegram.WebApp.close();
+    } catch (e) {
+      console.error("Ошибка WebApp:", e);
+      alert("Доступ запрещён"); // Фолбэк для браузера
+    }
   }
 }
 
-// 4. Вызываем функцию проверки
-checkEmployeeAccess();
-
-// 5. Функция отображения профиля
-function renderProfile(employee) {
-  document.getElementById('app').innerHTML = `
-    <div class="profile">
-      <img src="${employee.photo || 'logo.jpg'}" alt="Фото">
-      <h1>${employee.name}</h1>
-      <p>${employee.position}, ${employee.store}</p>
-      <div class="stats">
-        <p>Стаж: ${employee.experience || 'не указан'}</p>
-      </div>
-    </div>
-  `;
-}
-
-// Для теста в браузере - имитируем Telegram WebApp
-if (typeof Telegram === 'undefined') {
-  console.warn("Telegram WebApp не обнаружен, запуск в тестовом режиме");
-  window.Telegram = {
-    WebApp: {
-      ready: () => console.log("TWA ready"),
-      initDataUnsafe: {},
-      showAlert: alert,
-      MainButton: {
-        setText: console.log,
-        show: () => console.log("MainButton shown"),
-        onClick: console.log
-      },
-      requestContact: () => console.log("Request contact button"),
-      platform: "browser"
-    }
-  };
+// 5. Проверяем режим запуска
+if (window.location.protocol === 'file:') {
+  console.warn("Запуск через file:// - используйте локальный сервер");
+  renderProfile({
+    name: "Локальный тест",
+    position: "Режим разработки",
+    store: "Тестовые данные",
+    photo: "logo.jpg"
+  });
+} else if (userPhone) {
+  checkEmployeeAccess();
+} else {
+  Telegram.WebApp.requestContact();
 }
