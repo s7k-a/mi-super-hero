@@ -35,7 +35,12 @@ def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     print("Бот запущен. Нажмите Ctrl+C для остановки.")
-    app.run_polling()
+    
+    try:
+        app.run_polling()
+    except KeyboardInterrupt:
+        print("\nБот остановлен пользователем")
+        return
 
 if __name__ == '__main__':
     main()
