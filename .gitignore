@@ -134,3 +134,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+# Мои кастомные правила
+/data/               # Исключает всю папку data
+*.txt                # Блокирует все текстовые файлы
+secrets.json         # Специфичные конфиденциальные файлы
