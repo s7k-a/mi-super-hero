@@ -1,9 +1,11 @@
 [
     {
       "phone": "+79253555985",
-      "name": "Тестовый Сотрудник",
-      "position": "Должность",
+      "name": "Ишвец Ижнец",
+      "position": "На дуде игрец",
       "store": "Магазин",
-      "photo": "logo.jpg"
+      "photo": "logo.jpg",
+      "login": "admin",
+      "password": "admin123" 
     }
   ]
