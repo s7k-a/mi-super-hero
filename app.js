@@ -1,14 +1,38 @@
+// Проверка на тестовое окружение (браузер)
+const IS_TEST_ENV = !window.Telegram?.WebApp?.initDataUnsafe?.user;
+
 // Главная функция
 async function main() {
   try {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
+    // Инициализация Telegram WebApp
+    if (window.Telegram?.WebApp) {
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+    }
     
-    // Для ТЕСТА в браузере - раскомментируйте:
-    // Telegram.WebApp.initDataUnsafe = { user: { phone_number: "+79253555985" } };
+    // Установка тестовых данных для браузера
+    if (IS_TEST_ENV) {
+      console.log('Запуск в тестовом режиме');
+      window.Telegram = {
+        WebApp: {
+          initData: 'test_mode',
+          initDataUnsafe: {
+            user: {
+              phone_number: "+79999999999"
+            }
+          },
+          ready: () => console.log('Test ready'),
+          expand: () => console.log('Test expand')
+        }
+      };
+    }
     
-    const initData = Telegram.WebApp.initData;
-    const userPhone = Telegram.WebApp.initDataUnsafe.user?.phone_number;
+    const initData = window.Telegram?.WebApp?.initData;
+    const userPhone = window.Telegram?.WebApp?.initDataUnsafe?.user?.phone_number;
+    
+    console.log('Режим:', IS_TEST_ENV ? 'Тестовый' : 'Telegram');
+    console.log('InitData:', initData);
+    console.log('UserPhone:', userPhone);
     
     if (!initData) {
       showError("❌ Запустите через бота:\n1. Нажмите START\n2. Откройте 'Личный кабинет'");
@@ -22,6 +46,8 @@ async function main() {
     
     // Проверка сотрудника
     const employee = await findEmployee(userPhone);
+    console.log('Найден сотрудник:', employee);
+    
     if (employee) {
       showProfile(employee);
     } else {
@@ -36,10 +62,42 @@ async function main() {
 
 // Поиск сотрудника
 async function findEmployee(phone) {
-  const cleanPhone = phone.replace(/\D/g, '');
-  const response = await fetch('data/employees.json');
-  const employees = await response.json();
-  return employees.find(e => e.phone.replace(/\D/g, '') === cleanPhone);
+  try {
+    if (!phone) {
+      console.error('Номер телефона не предоставлен');
+      return null;
+    }
+
+    const cleanPhone = normalizePhone(phone);
+    console.log('Поиск сотрудника по номеру:', cleanPhone);
+    
+    const response = await fetch('./data/employees.json');
+    if (!response.ok) {
+      throw new Error(`Ошибка загрузки файла: ${response.status} ${response.statusText}`);
+    }
+    
+    const employees = await response.json();
+    console.log('Загружено сотрудников:', employees.length);
+    
+    const found = employees.find(e => normalizePhone(e.phone) === cleanPhone);
+    console.log('Результат поиска:', found ? 'Найден' : 'Не найден');
+    
+    return found;
+  } catch (error) {
+    console.error('Ошибка при поиске сотрудника:', error);
+    throw error;
+  }
+}
+
+// Нормализация номера телефона
+function normalizePhone(phone) {
+  if (!phone) return '';
+  // Убираем все кроме цифр и приводим к формату 7XXXXXXXXXX
+  const cleaned = phone.replace(/\D/g, '');
+  if (cleaned.startsWith('8')) {
+    return '7' + cleaned.slice(1);
+  }
+  return cleaned;
 }
 
 // Показ профиля
