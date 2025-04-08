@@ -7,8 +7,7 @@ data = {
     'password': ['admin123', 'password123'],
     'name': ['Ишвец Ижнец', 'Иван Иванов'],
     'position': ['На дуде игрец', 'Менеджер'],
-    'store': ['Магазин', 'Склад'],
-    'photo': ['logo.jpg', 'default.jpg']
+    'store': ['Магазин', 'Склад']
 }
 
 # Создаем DataFrame

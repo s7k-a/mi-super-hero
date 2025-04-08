@@ -120,6 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
   showLoginForm();
 });
 
+// Конфигурация API
+const API_BASE_URL = 'http://localhost:8081'; // Изменено на порт 8081
+
 // Функция для отображения сообщений
 function showMessage(message, isError = false) {
   const app = document.getElementById('app');
@@ -140,7 +143,7 @@ async function uploadPhoto(file, userId) {
     formData.append('photo', file);
     formData.append('userId', userId);
 
-    const response = await fetch('http://localhost:8000/api/upload-photo', {
+    const response = await fetch(`${API_BASE_URL}/api/upload-photo`, {
       method: 'POST',
       body: formData
     });
@@ -161,7 +164,7 @@ async function uploadPhoto(file, userId) {
 
 // Функция для получения URL фото пользователя
 function getUserPhotoUrl(userId) {
-  return `http://localhost:8000/api/photo/${userId}`;
+  return `${API_BASE_URL}/api/photo/${userId}`;
 }
 
 // Функция для отображения профиля
@@ -249,14 +252,32 @@ async function checkLogin() {
   }
 
   try {
+    console.log('Начинаем процесс авторизации...');
     const response = await fetch('data/users.json');
+    
+    if (!response.ok) {
+      console.error('Ошибка загрузки данных:', response.status, response.statusText);
+      throw new Error('Ошибка загрузки данных');
+    }
+    
     const users = await response.json();
+    console.log('Загружены данные пользователей:', users);
+    
     const hashedPassword = await hashPassword(password);
+    console.log('Попытка входа:', { 
+      login, 
+      hashedPassword,
+      availableLogins: users.map(u => u.login),
+      matchingUser: users.find(u => u.login === login)
+    });
+    
     const user = users.find(u => u.login === login && u.password_hash === hashedPassword);
 
     if (user) {
+      console.log('Успешная авторизация:', user);
       showProfile(user);
     } else {
+      console.log('Неверные учетные данные');
       showError('Неверный логин или пароль');
     }
   } catch (error) {
