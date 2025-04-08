@@ -196,13 +196,13 @@ function showProfile(user) {
       showMessage('Размер файла не должен превышать 5MB', true);
       return;
     }
-
+    
     // Проверяем тип файла
     if (!file.type.startsWith('image/')) {
       showMessage('Пожалуйста, выберите изображение', true);
       return;
     }
-
+    
     // Показываем индикатор загрузки
     const img = document.getElementById('profile-photo');
     img.style.opacity = '0.5';
