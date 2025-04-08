@@ -59,6 +59,58 @@ document.head.innerHTML += `
     border-radius: 50%;
     margin: 10px auto;
   }
+  .photo-container {
+    position: relative;
+    width: 150px;
+    margin: 0 auto;
+  }
+  .profile img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 10px auto;
+    border: 3px solid var(--accent-color);
+  }
+  .photo-btn {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .photo-container:hover .photo-btn {
+    opacity: 1;
+  }
+  .message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    border-radius: 5px;
+    background: var(--accent-color);
+    color: white;
+    z-index: 1000;
+    animation: fadeInOut 3s forwards;
+  }
+  .message.error {
+    background: #ff4444;
+  }
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -20px); }
+    10% { opacity: 1; transform: translate(-50%, 0); }
+    90% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -20px); }
+  }
 </style>
 `;
 
@@ -81,16 +133,90 @@ function showMessage(message, isError = false) {
   `;
 }
 
+// Функция для загрузки фото
+async function uploadPhoto(file, userId) {
+  try {
+    const formData = new FormData();
+    formData.append('photo', file);
+    formData.append('userId', userId);
+
+    const response = await fetch('http://localhost:8000/api/upload-photo', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Ошибка загрузки фото');
+    }
+
+    const result = await response.json();
+    return result.photoUrl;
+  } catch (error) {
+    console.error('Ошибка при загрузке фото:', error);
+    showMessage(error.message || 'Ошибка при загрузке фото', true);
+    return null;
+  }
+}
+
+// Функция для получения URL фото пользователя
+function getUserPhotoUrl(userId) {
+  return `http://localhost:8000/api/photo/${userId}`;
+}
+
 // Функция для отображения профиля
-function showProfile(employee) {
+function showProfile(user) {
+  const photoUrl = getUserPhotoUrl(user.login);
+  
   document.getElementById('app').innerHTML = `
     <div class="profile">
-      <img src="${employee.photo}" alt="${employee.name}">
-      <h2>${employee.name}</h2>
-      <p>${employee.position}</p>
-      <p>${employee.store}</p>
+      <div class="photo-container">
+        <img src="${photoUrl}" alt="${user.name}" id="profile-photo">
+        <input type="file" id="photo-upload" accept="image/*" style="display: none">
+        <button class="btn photo-btn" onclick="document.getElementById('photo-upload').click()">
+          Изменить фото
+        </button>
+      </div>
+      <h2>${user.name}</h2>
+      <p>${user.position}</p>
+      <p>${user.store}</p>
     </div>
   `;
+
+  // Обработчик загрузки фото
+  document.getElementById('photo-upload').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Проверяем размер файла (максимум 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showMessage('Размер файла не должен превышать 5MB', true);
+      return;
+    }
+
+    // Проверяем тип файла
+    if (!file.type.startsWith('image/')) {
+      showMessage('Пожалуйста, выберите изображение', true);
+      return;
+    }
+
+    // Показываем индикатор загрузки
+    const img = document.getElementById('profile-photo');
+    img.style.opacity = '0.5';
+
+    try {
+      // Загружаем фото
+      const newPhotoUrl = await uploadPhoto(file, user.login);
+      if (newPhotoUrl) {
+        // Обновляем фото на странице
+        img.src = getUserPhotoUrl(user.login) + '?t=' + new Date().getTime();
+        showMessage('Фото успешно обновлено');
+      }
+    } finally {
+      // Возвращаем нормальную прозрачность
+      img.style.opacity = '1';
+    }
+  });
 }
 
 // Функция для отображения ошибки
