@@ -65,7 +65,7 @@ document.head.innerHTML += `
 // Запускаем проверку
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Приложение запущено');
-  checkAuth();
+  showLoginForm();
 });
 
 // Функция для отображения сообщений
@@ -103,64 +103,13 @@ function showError(message) {
   `;
 }
 
-// 2. Загружаем список разрешенных номеров
-async function checkAuth() {
-  try {
-    console.log('Начинаем проверку авторизации...');
-    const response = await fetch('test-data.json');
-    
-    if (!response.ok) {
-      throw new Error(`Ошибка загрузки данных: ${response.status}`);
-    }
-    
-    const employees = await response.json();
-    console.log('Загружены данные сотрудников:', employees);
-    
-    // Проверяем, есть ли номер от Telegram
-    const userPhone = window.Telegram?.WebApp?.initDataUnsafe?.user?.phone_number;
-    
-    if (userPhone) {
-      // Если есть номер от Telegram, проверяем его
-      const phoneInput = document.getElementById('phone');
-      if (phoneInput) {
-        phoneInput.value = userPhone;
-        checkPhone();
-      } else {
-        showLoginForm();
-      }
-    } else {
-      // Если нет номера, показываем форму входа
-      console.log('Номер не передан, показываем форму входа');
-      showLoginForm();
-    }
-  } catch (error) {
-    console.error('Ошибка при проверке авторизации:', error);
-    showMessage("⚠️ Ошибка загрузки данных: " + error.message);
-  }
-}
-
-// Функция проверки телефона
-async function checkPhone() {
-  const phone = document.getElementById('phone').value.trim();
-  if (!phone) {
-    showError('Введите номер телефона');
-    return;
-  }
-
-  try {
-    const response = await fetch('test-data.json');
-    const employees = await response.json();
-    const cleanPhone = phone.replace(/\D/g, '');
-    const employee = employees.find(e => e.phone.replace(/\D/g, '') === cleanPhone);
-
-    if (employee) {
-      showProfile(employee);
-    } else {
-      showError('Номер не найден');
-    }
-  } catch (error) {
-    showError('Ошибка проверки данных');
-  }
+// Функция для хеширования пароля (SHA-256)
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 // Функция проверки логина
@@ -174,16 +123,18 @@ async function checkLogin() {
   }
 
   try {
-    const response = await fetch('test-data.json');
-    const employees = await response.json();
-    const employee = employees.find(e => e.login === login && e.password === password);
+    const response = await fetch('data/users.json');
+    const users = await response.json();
+    const hashedPassword = await hashPassword(password);
+    const user = users.find(u => u.login === login && u.password_hash === hashedPassword);
 
-    if (employee) {
-      showProfile(employee);
+    if (user) {
+      showProfile(user);
     } else {
       showError('Неверный логин или пароль');
     }
   } catch (error) {
+    console.error('Ошибка при авторизации:', error);
     showError('Ошибка проверки данных');
   }
 }
@@ -193,14 +144,9 @@ function showLoginForm() {
   document.getElementById('app').innerHTML = `
     <div class="auth-form">
       <h2>Вход в систему</h2>
-      <input type="tel" id="phone" class="input-field" placeholder="Номер телефона (например, +79XXXXXXXXX)">
-      <button onclick="checkPhone()">Войти по телефону</button>
-      
-      <div class="divider">или</div>
-      
       <input type="text" id="login" class="input-field" placeholder="Логин">
       <input type="password" id="password" class="input-field" placeholder="Пароль">
-      <button onclick="checkLogin()">Войти по логину</button>
+      <button onclick="checkLogin()" class="btn">Войти</button>
     </div>
   `;
 }
