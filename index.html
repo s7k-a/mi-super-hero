@@ -4,13 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SuperHero App</title>
+  <link rel="icon" type="image/x-icon" href="/public/favicon.ico">
   <link rel="stylesheet" href="styles.css">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="app.js" defer></script>
 </head>
 <body>
   <div id="app">
-    <!-- Контент будет добавлен через JavaScript -->
+    <div class="header">
+      <h1>SuperHero App</h1>
+      <button id="logoutBtn" class="btn" style="display: none">Выйти</button>
+    </div>
+    
+    <div id="loginForm" class="auth-form">
+      <h2>Вход в систему</h2>
+      <input type="text" id="login" class="input-field" placeholder="Логин">
+      <input type="password" id="password" class="input-field" placeholder="Пароль">
+      <button id="loginBtn" class="btn">Войти</button>
+    </div>
+
+    <div id="profile" class="profile" style="display: none">
+      <img id="userPhoto" src="" alt="Фото пользователя">
+      <h2 id="userName"></h2>
+      <p id="userPosition"></p>
+      <p id="userStore"></p>
+    </div>
+  </div>
+  <div id="admin-link" style="display: none; text-align: center; margin-top: 20px;">
+    <a href="/admin" class="btn">Административная панель</a>
   </div>
 </body>
 </html>

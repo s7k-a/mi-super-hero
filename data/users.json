@@ -1,0 +1,34 @@
+[
+  {
+    "login": "admin",
+    "password_hash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",
+    "name": "Admin",
+    "position": "admin",
+    "store": "office",
+    "photo": "default_4.jpg"
+  },
+  {
+    "login": "mkuplinov",
+    "password_hash": "a320480f534776bddb5cdb54b1e93d210a3c7d199e80a23c1b2178497b184c76",
+    "name": "Куплинов Михаил",
+    "position": "designe",
+    "store": "office",
+    "photo": "default_7.jpg"
+  },
+  {
+    "login": "auspensky",
+    "password_hash": "f931c308fc5b60b421c09969912839dff2776957d98b8d2f91c554ed8fc80f78",
+    "name": "Успенский Александр",
+    "position": "logistician",
+    "store": "office",
+    "photo": "default_5.jpg"
+  },
+  {
+    "login": "imanger",
+    "password_hash": "f931c308fc5b60b421c09969912839dff2776957d98b8d2f91c554ed8fc80f78",
+    "name": "Мангер Илья",
+    "position": "claims manager",
+    "store": "office",
+    "photo": "default_1.jpg"
+  }
+]

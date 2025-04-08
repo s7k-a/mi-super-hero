@@ -186,6 +186,14 @@ function showProfile(user) {
     </div>
   `;
 
+  // Показываем кнопку административной панели только для администратора
+  const adminLink = document.getElementById('admin-link');
+  if (user.login === 'admin') {
+    adminLink.style.display = 'block';
+  } else {
+    adminLink.style.display = 'none';
+  }
+
   // Обработчик загрузки фото
   document.getElementById('photo-upload').addEventListener('change', async (event) => {
     const file = event.target.files[0];

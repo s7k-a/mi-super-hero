@@ -1,29 +1,145 @@
 :root {
-    --bg-color: #1e1e1e;
-    --text-color: #ffffff;
+    --bg-color: #ffffff;
+    --text-color: #333333;
     --accent-color: #0088cc;
+    --accent-hover-color: #006699;
     --warning-bg: #2d2d2d;
     --button-bg: #333333;
-  }
-  
-  body {
+    --bg-light: #f8f9fa;
+    --border-color: #dee2e6;
+    --accent-color-light: #e2f1ff;
+    --accent-color-dark: #0056b3;
+}
+
+body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: Arial, sans-serif;
     padding: 20px;
     line-height: 1.6;
-  }
-  
-  .warning {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 20px;
+    background-color: var(--accent-color);
+    color: white;
+    height: 60px;
+}
+
+.header h1 {
+    color: white;
+    margin: 0;
+    font-size: 24px;
+}
+
+#logoutBtn {
+    background-color: transparent;
+    color: white;
+    padding: 8px 16px;
+    border: 1px solid white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+#logoutBtn:hover {
+    background-color: white;
+    color: var(--accent-color);
+}
+
+.profile {
+    text-align: center;
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid var(--accent-color);
+}
+
+.auth-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.input-field {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: white;
+    color: var(--text-color);
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn:hover {
+    background: var(--accent-hover-color);
+}
+
+#admin-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#admin-link a {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+#admin-link a:hover {
+    background-color: var(--accent-hover-color);
+}
+
+.warning {
     background-color: var(--warning-bg);
     padding: 20px;
     border-radius: 10px;
     text-align: center;
     max-width: 400px;
     margin: 0 auto;
-  }
-  
-  button {
+}
+
+button {
     background-color: var(--accent-color);
     color: white;
     border: none;
@@ -33,71 +149,114 @@
     margin-top: 15px;
     font-size: 16px;
     width: 100%;
-  }
-  
-  button:hover {
+}
+
+button:hover {
     background-color: #006699;
-  }
-  
-  .profile {
-    text-align: center;
-    padding: 20px;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  
-  .profile img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 15px;
-  }
-  
-  .auth-form {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .auth-form h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .input-field {
-    width: 100%;
-    padding: 12px;
-    margin: 8px 0;
-    border: 1px solid #444;
-    border-radius: 5px;
-    background: #2d2d2d;
-    color: white;
-    font-size: 16px;
-    box-sizing: border-box;
-  }
-  
-  .divider {
+}
+
+.divider {
     text-align: center;
     margin: 20px 0;
     color: #666;
     position: relative;
-  }
-  
-  .divider::before,
-  .divider::after {
+}
+
+.divider::before,
+.divider::after {
     content: '';
     position: absolute;
     top: 50%;
     width: 45%;
     height: 1px;
     background: #444;
-  }
-  
-  .divider::before {
+}
+
+.divider::before {
     left: 0;
-  }
-  
-  .divider::after {
+}
+
+.divider::after {
     right: 0;
-  }
+}
+
+/* Стили для зоны загрузки */
+#dropZone {
+    border: 2px dashed var(--accent-color);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin: 20px 0;
+    transition: all 0.3s ease;
+    background-color: var(--bg-light);
+}
+
+#dropZone.dragover {
+    background-color: var(--accent-color-light);
+    border-color: var(--accent-color-dark);
+}
+
+/* Стили для уведомлений */
+.status {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.status:not(:empty) {
+    opacity: 1;
+}
+
+.status.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Стили для таблицы */
+.table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--bg-light);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+tr:hover {
+    background-color: var(--accent-color-light);
+}
+
+/* Стили для ссылок */
+.download-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    display: inline-block;
+    margin: 10px 0;
+}
+
+.download-link:hover {
+    text-decoration: underline;
+}

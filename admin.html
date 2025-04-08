@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Административная панель</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="admin.js" defer></script>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>Административная панель</h1>
+            <button id="logoutBtn" class="btn">Выйти</button>
+        </div>
+        
+        <div class="admin-panel">
+            <div class="upload-section">
+                <h2>Загрузка пользователей</h2>
+                <div id="dropZone">
+                    Перетащите Excel файл сюда или
+                    <input type="file" id="fileInput" accept=".xlsx" style="display: none">
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">Выбрать файл</button>
+                </div>
+                <div id="status" class="status"></div>
+                <button id="updateBtn" class="btn" style="display: none">Обновить данные</button>
+            </div>
+            
+            <div class="users-section">
+                <h2>Список пользователей</h2>
+                <div class="table-container">
+                    <table id="userTable">
+                        <thead>
+                            <tr>
+                                <th>Логин</th>
+                                <th>Имя</th>
+                                <th>Должность</th>
+                                <th>Магазин</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Данные будут добавлены через JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
