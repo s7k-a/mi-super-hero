@@ -1,3 +1,23 @@
+// Инициализация Telegram WebApp для тестирования
+if (typeof Telegram === 'undefined') {
+  console.log('Создаем заглушку для Telegram WebApp');
+  window.Telegram = {
+    WebApp: {
+      initDataUnsafe: {
+        user: null
+      },
+      ready: () => {},
+      expand: () => {}
+    }
+  };
+}
+
+// Запускаем проверку
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Приложение запущено');
+  checkAuth();
+});
+
 // 1. Проверяем номер из Telegram
 const userPhone = Telegram.WebApp.initDataUnsafe.user?.phone_number;
 console.log('Номер телефона из Telegram:', userPhone);
@@ -75,30 +95,86 @@ function showLoginForm() {
         </div>
         
         <div id="phone-tab" class="tab-content active">
-          <input type="tel" id="phone" placeholder="Номер телефона (например, +79XXXXXXXXX)">
-          <button onclick="phoneAuth()">Проверить</button>
+          <div class="input-group">
+            <input type="tel" id="phone" placeholder="Номер телефона (например, +79XXXXXXXXX)">
+            <button onclick="phoneAuth()" class="btn-primary">Проверить</button>
+          </div>
         </div>
         
         <div id="login-tab" class="tab-content">
-          <input type="text" id="login" placeholder="Логин">
-          <input type="password" id="password" placeholder="Пароль">
-          <button onclick="manualAuth()">Войти</button>
+          <div class="input-group">
+            <input type="text" id="login" placeholder="Логин">
+            <input type="password" id="password" placeholder="Пароль">
+            <button onclick="manualAuth()" class="btn-primary">Войти</button>
+          </div>
         </div>
       </div>
     </div>
   `;
   
-  // Добавляем стили для вкладок
-  const style = document.createElement('style');
-  style.textContent = `
-    .tab-container { width: 100%; }
-    .tabs { display: flex; margin-bottom: 10px; }
-    .tab-btn { flex: 1; padding: 10px; cursor: pointer; background: #f1f1f1; border: none; }
-    .tab-btn.active { background: #007bff; color: white; }
-    .tab-content { display: none; padding: 15px 0; }
-    .tab-content.active { display: block; }
-  `;
-  document.head.appendChild(style);
+  // Добавляем стили
+  if (!document.getElementById('auth-styles')) {
+    const style = document.createElement('style');
+    style.id = 'auth-styles';
+    style.textContent = `
+      .auth-form {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+      }
+      .tab-container { width: 100%; }
+      .tabs { 
+        display: flex; 
+        margin-bottom: 20px;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .tab-btn { 
+        flex: 1; 
+        padding: 12px; 
+        cursor: pointer; 
+        background: #f1f1f1; 
+        border: none;
+        transition: all 0.3s ease;
+      }
+      .tab-btn.active { 
+        background: #007bff; 
+        color: white; 
+      }
+      .tab-content { 
+        display: none; 
+        padding: 15px 0; 
+      }
+      .tab-content.active { 
+        display: block; 
+      }
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      input {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+      }
+      .btn-primary {
+        padding: 12px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s ease;
+      }
+      .btn-primary:hover {
+        background: #0056b3;
+      }
+    `;
+    document.head.appendChild(style);
+  }
 }
 
 // Функция для переключения вкладок
@@ -188,6 +264,3 @@ if (!Telegram.WebApp.initDataUnsafe.user) {
     }
   };
 }
-
-// Запускаем проверку
-checkAuth();
