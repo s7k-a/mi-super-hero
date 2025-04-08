@@ -12,8 +12,9 @@ if (typeof Telegram === 'undefined') {
   };
 }
 
-// Инициализация стилей
-const styles = `
+// Базовые стили
+document.head.innerHTML += `
+<style>
   .container {
     max-width: 400px;
     margin: 20px auto;
@@ -26,6 +27,7 @@ const styles = `
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
+    box-sizing: border-box;
   }
   .btn {
     width: 100%;
@@ -38,44 +40,33 @@ const styles = `
     font-size: 16px;
     cursor: pointer;
   }
-  .btn:hover {
-    background: #0056b3;
-  }
-  .message {
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 4px;
+  .divider {
     text-align: center;
+    margin: 15px 0;
+    color: #666;
   }
   .error {
-    background: #ffe6e6;
     color: #ff0000;
+    text-align: center;
+    margin: 10px 0;
   }
   .profile {
     text-align: center;
   }
-  .profile-photo {
+  .profile img {
     width: 100px;
     height: 100px;
     border-radius: 50%;
     margin: 10px auto;
   }
+</style>
 `;
-
-// Добавляем стили на страницу
-const styleSheet = document.createElement("style");
-styleSheet.textContent = styles;
-document.head.appendChild(styleSheet);
 
 // Запускаем проверку
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Приложение запущено');
   checkAuth();
 });
-
-// 1. Проверяем номер из Telegram
-const userPhone = Telegram.WebApp.initDataUnsafe.user?.phone_number;
-console.log('Номер телефона из Telegram:', userPhone);
 
 // Функция для отображения сообщений
 function showMessage(message, isError = false) {
@@ -92,13 +83,22 @@ function showMessage(message, isError = false) {
 
 // Функция для отображения профиля
 function showProfile(employee) {
-  const app = document.getElementById('app');
-  app.innerHTML = `
-    <div class="container profile">
-      <img src="${employee.photo}" alt="${employee.name}" class="profile-photo">
+  document.getElementById('app').innerHTML = `
+    <div class="profile">
+      <img src="${employee.photo}" alt="${employee.name}">
       <h2>${employee.name}</h2>
       <p>${employee.position}</p>
       <p>${employee.store}</p>
+    </div>
+  `;
+}
+
+// Функция для отображения ошибки
+function showError(message) {
+  document.getElementById('app').innerHTML = `
+    <div class="warning">
+      <p>${message}</p>
+      <button onclick="showLoginForm()">Назад</button>
     </div>
   `;
 }
@@ -116,26 +116,22 @@ async function checkAuth() {
     const employees = await response.json();
     console.log('Загружены данные сотрудников:', employees);
     
-    // Нормализуем номера (убираем +, пробелы)
-    const cleanUserPhone = userPhone?.replace(/\D/g, '');
-    console.log('Очищенный номер телефона:', cleanUserPhone);
+    // Проверяем, есть ли номер от Telegram
+    const userPhone = window.Telegram?.WebApp?.initDataUnsafe?.user?.phone_number;
     
-    const foundEmployee = employees.find(e => 
-      e.phone.replace(/\D/g, '') === cleanUserPhone
-    );
-    
-    console.log('Результат поиска сотрудника:', foundEmployee ? 'Найден' : 'Не найден');
-
-    if (foundEmployee) {
-      // Номер есть в базе - показываем профиль
-      showProfile(foundEmployee);
-    } else if (userPhone) {
-      // Номер передан, но не найден
-      showMessage("🚫 Ваш номер не зарегистрирован");
+    if (userPhone) {
+      // Если есть номер от Telegram, проверяем его
+      const phoneInput = document.getElementById('phone');
+      if (phoneInput) {
+        phoneInput.value = userPhone;
+        checkPhone();
+      } else {
+        showLoginForm();
+      }
     } else {
-      // Номер не передан (открыли не через бота)
+      // Если нет номера, показываем форму входа
       console.log('Номер не передан, показываем форму входа');
-      showLoginForm(); 
+      showLoginForm();
     }
   } catch (error) {
     console.error('Ошибка при проверке авторизации:', error);
@@ -143,38 +139,16 @@ async function checkAuth() {
   }
 }
 
-// Функция для отображения формы входа
-function showLoginForm() {
-  const app = document.getElementById('app');
-  app.innerHTML = `
-    <div class="container">
-      <h2>Вход в систему</h2>
-      <input type="tel" id="phone" class="input-field" placeholder="Номер телефона (например, +79XXXXXXXXX)">
-      <button class="btn" onclick="checkPhone()">Войти по телефону</button>
-      
-      <div style="margin: 20px 0; text-align: center;">или</div>
-      
-      <input type="text" id="login" class="input-field" placeholder="Логин">
-      <input type="password" id="password" class="input-field" placeholder="Пароль">
-      <button class="btn" onclick="checkLoginPassword()">Войти по логину</button>
-    </div>
-  `;
-}
-
 // Функция проверки телефона
 async function checkPhone() {
-  const phoneInput = document.getElementById('phone');
-  const phone = phoneInput.value.trim();
-  
+  const phone = document.getElementById('phone').value.trim();
   if (!phone) {
-    showMessage('Введите номер телефона', true);
+    showError('Введите номер телефона');
     return;
   }
 
   try {
     const response = await fetch('test-data.json');
-    if (!response.ok) throw new Error('Ошибка загрузки данных');
-    
     const employees = await response.json();
     const cleanPhone = phone.replace(/\D/g, '');
     const employee = employees.find(e => e.phone.replace(/\D/g, '') === cleanPhone);
@@ -182,38 +156,53 @@ async function checkPhone() {
     if (employee) {
       showProfile(employee);
     } else {
-      showMessage('Номер не найден в базе', true);
+      showError('Номер не найден');
     }
   } catch (error) {
-    showMessage('Ошибка при проверке данных', true);
+    showError('Ошибка проверки данных');
   }
 }
 
-// Функция проверки логина и пароля
-async function checkLoginPassword() {
+// Функция проверки логина
+async function checkLogin() {
   const login = document.getElementById('login').value.trim();
   const password = document.getElementById('password').value.trim();
-  
+
   if (!login || !password) {
-    showMessage('Введите логин и пароль', true);
+    showError('Введите логин и пароль');
     return;
   }
 
   try {
     const response = await fetch('test-data.json');
-    if (!response.ok) throw new Error('Ошибка загрузки данных');
-    
     const employees = await response.json();
     const employee = employees.find(e => e.login === login && e.password === password);
 
     if (employee) {
       showProfile(employee);
     } else {
-      showMessage('Неверный логин или пароль', true);
+      showError('Неверный логин или пароль');
     }
   } catch (error) {
-    showMessage('Ошибка при проверке данных', true);
+    showError('Ошибка проверки данных');
   }
+}
+
+// Отображение формы входа
+function showLoginForm() {
+  document.getElementById('app').innerHTML = `
+    <div class="auth-form">
+      <h2>Вход в систему</h2>
+      <input type="tel" id="phone" class="input-field" placeholder="Номер телефона (например, +79XXXXXXXXX)">
+      <button onclick="checkPhone()">Войти по телефону</button>
+      
+      <div class="divider">или</div>
+      
+      <input type="text" id="login" class="input-field" placeholder="Логин">
+      <input type="password" id="password" class="input-field" placeholder="Пароль">
+      <button onclick="checkLogin()">Войти по логину</button>
+    </div>
+  `;
 }
 
 // Добавляем отладку Telegram WebApp
